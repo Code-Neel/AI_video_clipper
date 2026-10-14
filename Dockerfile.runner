@@ -1,0 +1,25 @@
+FROM alpine:3.22 AS ffmpeg
+
+RUN mkdir -p /out/etc/apk && \
+    cp -a /etc/apk/keys /out/etc/apk/keys && \
+    apk --root /out --initdb --no-cache \
+    --repository https://dl-cdn.alpinelinux.org/alpine/v3.22/main \
+    --repository https://dl-cdn.alpinelinux.org/alpine/v3.22/community \
+    add ffmpeg fontconfig ttf-dejavu
+
+FROM n8nio/runners:beta
+
+USER root
+
+COPY --from=ffmpeg /out/ /
+
+RUN fc-cache -f -v && \
+    ffmpeg -version && \
+    ffprobe -version
+
+RUN apk add --no-cache py3-opencv deno
+RUN cd /opt/runners/task-runner-python && uv pip install yt-dlp
+
+COPY n8n-task-runners.json /etc/n8n-task-runners.json
+
+USER runner

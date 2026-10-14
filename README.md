@@ -2,7 +2,7 @@
 
 A local prototype for turning a video into short vertical clips. The inspected source includes an n8n service and external task runner, plus a Python/Flask service for Whisper transcription and OpenCV-based framing.
 
-This repository describes only the components verified in the included source. It does not contain an exported n8n workflow, so the complete automation graph and any integrations used by that workflow cannot be reproduced from this repository.
+The code documentation in this repository is based on the included source. A creator-provided screenshot also shows an n8n workflow canvas with stages from request intake through clip cutting, but the workflow export is not included. The screenshots establish visible node labels and one execution marked successful; they do not let a reader reproduce or review the node settings.
 
 ## Problem and intended use
 
@@ -59,7 +59,9 @@ The Compose file also gives the Whisper service access to the shared media volum
 
 ## Workflow stages and orchestration
 
-The n8n workflow export was not present during review. Google Sheets input, YouTube downloading stages, transcript-based clip selection, Qwen/Ollama calls, retries, and node-to-node error handling therefore cannot be documented as verified behavior.
+An owner-supplied screenshot of the n8n execution canvas provides a high-level view, but the workflow export is still not in this repository. The visible graph appears to start with a spreadsheet-style **New Video Request** trigger and **Prepare Job**, then shows nodes labeled **Download Video**, **Transcribe Video**, **Merge Video + Transcript**, **Build Transcript**, **Split Transcript**, **AI Find Clips**, **Merge AI Results**, **Validate Clips**, **Flatten Clips**, **Select Shorts**, **Build Subtitle Groups**, **ASS subtitle document**, **Convert to File**, **Read/Write Files from Disk**, and **Cut Clips**. These are labels visible in the screenshot, not a verified specification of node behavior or exact data flow.
+
+The screenshot shows one execution marked successful. It does not prove repeatability, validate the output, or substitute for workflow/configuration tests. Since node parameters and the JSON export were not supplied, exact integrations (including whether the spreadsheet-style trigger is Google Sheets), download behavior, AI provider/model/prompt, subtitle rendering details, failure handling, storage paths, and credential handling remain unverified. The screenshots also contain run metadata and service address labels; those details are intentionally not reproduced here.
 
 The verified service interfaces are:
 
@@ -68,7 +70,7 @@ The verified service interfaces are:
 3. FFmpeg renders the selected interval as a vertical video. The service returns the requested output path and framing metadata.
 4. GET /health returns a basic service status.
 
-The Modelfile.smartdirector file in the original folder was not included because the inspected Compose and Python source do not show an Ollama service or a call to that model. Subtitle generation is also not present in the included service code.
+The Modelfile.smartdirector file from the original folder was not included because the inspected Compose and Python source do not show an Ollama service or a call to that model. The screenshot's AI-labeled node does not establish which provider or model it uses. The screenshot also shows subtitle-related nodes, but their behavior is not represented in the included Python service.
 
 ## Docker services and storage
 
@@ -84,13 +86,13 @@ The Flask service loads faster-whisper's small model on CPU with int8 computatio
 
 ## Transcript selection and Qwen/Ollama
 
-No Qwen or Ollama service/client call was found in the included files. The original folder contained a model recipe, but it was not wired into the inspected Compose setup or Python service and is omitted here. AI-based transcript clip selection is therefore not claimed as an implemented feature in this repository.
+The included code contains no Qwen or Ollama service/client call. The original folder contained a model recipe, but the sanitized publication copy omits it because its use could not be confirmed in the included code. The screenshot shows an **AI Find Clips** workflow node followed by validation and selection nodes. This is evidence of workflow-visible AI clip selection, but it does not identify the provider/model, prompt, selection logic, input/output schema, or reliability. Because the workflow export is absent, the feature cannot be reproduced or security-reviewed from this repository.
 
 ## FFmpeg rendering and subtitles
 
 The framing endpoint produces vertical H.264/AAC output. smart_crop uses a face-based crop; preserve_scene fits the full image over a blurred background; auto chooses between those approaches and falls back to preserve_scene in several uncertain cases.
 
-Subtitle generation, subtitle styling, and subtitle burn-in are not included in the inspected code.
+The supplied n8n screenshot shows nodes labeled **Build Subtitle Groups** and **ASS subtitle document**, followed by **Convert to File**. The workflow export and parameters are absent, so the actual ASS content, subtitle styling, and whether subtitles are burned into rendered video cannot be verified. The included Flask API does not itself emit SRT/VTT or implement these screenshot-visible subtitle stages.
 
 ## Prerequisites
 
@@ -140,7 +142,7 @@ Other runner settings are defined in docker-compose.yml and n8n-task-runners.jso
 
 ## Demo and screenshots
 
-No screenshots, sample media, or demo link were included. To prepare a demonstration, use a short video you own or are licensed to process, and review frames for private information and third-party rights before sharing.
+The project owner provided the [Clip Rush YouTube channel](https://www.youtube.com/@Clip_Rush444) as a demonstration link. The repository does not claim that any particular upload was produced by this code. The n8n editor screenshots are not included because they show run metadata and service address labels. No sample video or independently verified end-to-end demo is included. Before sharing a demonstration, review it for private information and third-party rights.
 
 ## Testing and verification
 
@@ -169,7 +171,7 @@ No project LICENSE is included because the project owner has not selected one. T
 - Narrow the task-runner import allowlist based on the workflow.
 - Pin container images, Python packages, and model downloads to reviewed versions or digests.
 - Add endpoint and end-to-end tests, plus a dependency/license inventory.
-- Add subtitle rendering and model-assisted clip selection only after those features are implemented and testable.
+- Include a sanitized n8n workflow export and safe node configuration so the screenshot-visible clip-selection and subtitle stages can be reproduced, reviewed, and tested without exposing credentials or private integration identifiers.
 
 ## Contribution guidance
 
